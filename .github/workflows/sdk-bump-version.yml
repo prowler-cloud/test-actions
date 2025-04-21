@@ -34,16 +34,16 @@ jobs:
                   BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}
                   echo "${BUMP_VERSION_TO}"
 
-                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" 
-                  echo "TARGET_BRANCH=master" 
+                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "${GITHUB_ENV}"
+                  echo "TARGET_BRANCH=master" >> "${GITHUB_ENV}"
                 else
                   echo "Patch Release: $PROWLER_VERSION"
                   
                   BUMP_VERSION_TO=${MAJOR_VERSION}.${MINOR_VERSION}.$((FIX_VERSION + 1))
                   echo "Bumping to next patch version: ${BUMP_VERSION_TO}"
                   
-                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" 
-                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" 
+                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" >> "${GITHUB_ENV}"
+                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "${GITHUB_ENV}"
                 fi
             else
                 echo "Releasing another Prowler major version, aborting..."
