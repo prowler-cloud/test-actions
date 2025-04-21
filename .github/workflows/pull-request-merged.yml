@@ -17,7 +17,7 @@ jobs:
       - name: Debug
         run: |
           echo "LABELS: ${{ github.event.pull_request.labels }}"
-          echo "LABELS_FROM_JSON: ${{ fromJson(github.event.pull_request.labels) }}"
+          echo "LABELS_FROM_JSON: ${{ fromJSON(github.event.pull_request.labels) }}"
 
 #      - name: Set short git commit SHA
 #        id: vars
