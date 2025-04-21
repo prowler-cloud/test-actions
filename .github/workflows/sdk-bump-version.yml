@@ -7,6 +7,7 @@ on:
 
 env:
   RELEASE_TAG: ${{ github.event.release.tag_name }}
+  BASE_BRANCH: main
   
 jobs:
   bump-version:
@@ -17,6 +18,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Get Prowler version
+        shell: bash
         run: |
           PROWLER_VERSION="${{ env.RELEASE_TAG }}"
 
@@ -29,19 +31,19 @@ jobs:
                 if (( FIX_VERSION == 0 )); then
                   echo "Minor Release: $PROWLER_VERSION"
 
-                  BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}"
-                  echo "${BUMP_VERSION_TO}"
+                  BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}
+                  echo "Bumping to next patch version: ${BUMP_VERSION_TO}"
 
-                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> ${GITHUB_ENV}
-                  echo "TARGET_BRANCH=master" >> ${GITHUB_ENV}
+                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "$GITHUB_ENV"
+                  echo "TARGET_BRANCH=master" >> "$GITHUB_ENV"
                 else
                   echo "Patch Release: $PROWLER_VERSION"
                   
-                  BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}"
+                  BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}
                   echo "Bumping to next patch version: ${BUMP_VERSION_TO}"
                   
-                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" >> ${GITHUB_ENV}
-                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> ${GITHUB_ENV}
+                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" >> "$GITHUB_ENV"
+                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "$GITHUB_ENV"
                 fi
             else
                 echo "Releasing another Prowler major version, aborting..."
@@ -73,6 +75,7 @@ jobs:
         with:
             author: prowler-bot <179230569+prowler-bot@users.noreply.github.com>
             token: ${{ secrets.PROWLER_BOT_ACCESS_TOKEN }}
+            base: ${{ env.BASE_BRANCH }}
             commit-message: "chore(release): Bump version to v${{ env.BUMP_VERSION_TO }}"
             branch: "version-bump-to-v${{ env.BUMP_VERSION_TO }}"
             title: "chore(release): Bump version to v${{ env.BUMP_VERSION_TO }}"
