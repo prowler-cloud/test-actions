@@ -32,7 +32,7 @@ jobs:
                   BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}
                   echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "${GITHUB_ENV}"            
 
-                  TARGET_BRANCH=master
+                  TARGET_BRANCH=${BASE_BRANCH}
                   echo "TARGET_BRANCH=${TARGET_BRANCH}" >> "${GITHUB_ENV}"
 
                   echo "Bumping to next minor version: ${BUMP_VERSION_TO} in branch ${TARGET_BRANCH}"
