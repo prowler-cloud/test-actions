@@ -4,6 +4,7 @@ on:
   release:
     types: [published]
 
+
 env:
   RELEASE_TAG: ${{ github.event.release.tag_name }}
   
@@ -42,6 +43,22 @@ jobs:
             echo "Invalid version syntax: '$PROWLER_VERSION' (must be N.N.N)" >&2
             exit 1
           fi
+    
+      - name: Bump versions in files
+        run: |
+            set -e
+
+            echo "Bumping version in pyproject.toml ..."
+            sed -Ei "s|version = \"${PROWLER_VERSION}\"|version = \"${BUMP_VERSION_TO}\"|" pyproject.toml
+
+            echo "Bumping version in prowler/config/config.py ..."
+            sed -Ei "s|prowler_version = \"${PROWLER_VERSION}\"|prowler_version = \"${BUMP_VERSION_TO}\"|" prowler/config/config.py
+
+            echo "Bumping version in .env ..."
+            sed -Ei "s|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${PROWLER_VERSION}|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${BUMP_VERSION_TO}|" .env
+
+            git --no-pager diff
+  
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
