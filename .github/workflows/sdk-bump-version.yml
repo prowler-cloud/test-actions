@@ -32,18 +32,18 @@ jobs:
                   echo "Minor Release: $PROWLER_VERSION"
 
                   BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}
-                  echo "Bumping to next patch version: ${BUMP_VERSION_TO}"
+                  echo "${BUMP_VERSION_TO}"
 
-                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "$GITHUB_ENV"
-                  echo "TARGET_BRANCH=master" >> "$GITHUB_ENV"
+                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" 
+                  echo "TARGET_BRANCH=master" 
                 else
                   echo "Patch Release: $PROWLER_VERSION"
                   
-                  BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}
+                  BUMP_VERSION_TO=${MAJOR_VERSION}.${MINOR_VERSION}.$((FIX_VERSION + 1))
                   echo "Bumping to next patch version: ${BUMP_VERSION_TO}"
                   
-                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" >> "$GITHUB_ENV"
-                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "$GITHUB_ENV"
+                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" 
+                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" 
                 fi
             else
                 echo "Releasing another Prowler major version, aborting..."
@@ -59,13 +59,13 @@ jobs:
             set -e
 
             echo "Bumping version in pyproject.toml ..."
-            sed -Ei "s|version = \"${PROWLER_VERSION}\"|version = \"${BUMP_VERSION_TO}\"|" pyproject.toml
+            sed -i "s|version = \"${PROWLER_VERSION}\"|version = \"${BUMP_VERSION_TO}\"|" pyproject.toml
 
             echo "Bumping version in prowler/config/config.py ..."
-            sed -Ei "s|prowler_version = \"${PROWLER_VERSION}\"|prowler_version = \"${BUMP_VERSION_TO}\"|" prowler/config/config.py
+            sed -i "s|prowler_version = \"${PROWLER_VERSION}\"|prowler_version = \"${BUMP_VERSION_TO}\"|" prowler/config/config.py
 
             echo "Bumping version in .env ..."
-            sed -Ei "s|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${PROWLER_VERSION}|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${BUMP_VERSION_TO}|" .env
+            sed -i "s|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${PROWLER_VERSION}|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${BUMP_VERSION_TO}|" .env
 
             git --no-pager diff
   
