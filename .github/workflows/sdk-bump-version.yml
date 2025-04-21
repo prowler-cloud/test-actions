@@ -30,18 +30,18 @@ jobs:
                   echo "Minor Release: $PROWLER_VERSION"
 
                   BUMP_VERSION_TO=${MAJOR_VERSION}.$((MINOR_VERSION + 1)).${FIX_VERSION}
-                  echo "${BUMP_VERSION_TO}"
-
-                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "${GITHUB_ENV}"
+                  echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "${GITHUB_ENV}"            
                   echo "TARGET_BRANCH=master" >> "${GITHUB_ENV}"
+
+                  echo "Bumping to next minor version: ${BUMP_VERSION_TO} in branch ${TARGET_BRANCH}"
                 else
                   echo "Patch Release: $PROWLER_VERSION"
                   
                   BUMP_VERSION_TO=${MAJOR_VERSION}.${MINOR_VERSION}.$((FIX_VERSION + 1))
-                  echo "Bumping to next patch version: ${BUMP_VERSION_TO}"
-                  
-                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" >> "${GITHUB_ENV}"
                   echo "BUMP_VERSION_TO=${BUMP_VERSION_TO}" >> "${GITHUB_ENV}"
+                  echo "TARGET_BRANCH=v${MAJOR_VERSION}.${MINOR_VERSION}" >> "${GITHUB_ENV}"
+                  
+                  echo "Bumping to next patch version: ${BUMP_VERSION_TO} in branch ${TARGET_BRANCH}"
                 fi
             else
                 echo "Releasing another Prowler major version, aborting..."
@@ -76,14 +76,14 @@ jobs:
         with:
             author: prowler-bot <179230569+prowler-bot@users.noreply.github.com>
             token: ${{ secrets.PROWLER_BOT_ACCESS_TOKEN }}
-            base: ${{ env.BASE_BRANCH }}
+            base: ${{ env.TARGET_BRANCH }}
             commit-message: "chore(release): Bump version to v${{ env.BUMP_VERSION_TO }}"
             branch: "version-bump-to-v${{ env.BUMP_VERSION_TO }}"
             title: "chore(release): Bump version to v${{ env.BUMP_VERSION_TO }}"
             body: |
               ### Description
 
-              Bump Prowler version to v${{ env.BUMP_VERSION_TO }}.
+              Bump Prowler version to v${{ env.BUMP_VERSION_TO }}
 
               ### License
 
