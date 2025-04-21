@@ -23,7 +23,7 @@ jobs:
         uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
         with:
           token: ${{ secrets.PROWLER_BOT_ACCESS_TOKEN }}
-          repository: "prowler-cloud/test-actions-dispatched"
+          repository: ${{ secrets.CLOUD_DISPATCH }}
           event-type: test-pull-request-merged
           client-payload: '{
             "TEST_COMMIT_SHA": "${{ github.sha }}",
