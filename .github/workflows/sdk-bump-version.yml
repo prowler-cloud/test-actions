@@ -6,7 +6,7 @@ on:
 
 
 env:
-  RELEASE_TAG: ${{ github.event.release.tag_name }}
+  PROWLER_VERSION: ${{ github.event.release.tag_name }}
   BASE_BRANCH: main
   
 jobs:
@@ -20,8 +20,6 @@ jobs:
       - name: Get Prowler version
         shell: bash
         run: |
-          PROWLER_VERSION="${{ env.RELEASE_TAG }}"
-
           if [[ $PROWLER_VERSION =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
             MAJOR_VERSION=${BASH_REMATCH[1]}
             MINOR_VERSION=${BASH_REMATCH[2]}
@@ -63,15 +61,12 @@ jobs:
 
             echo "Bumping version in pyproject.toml ..."
             sed -i "s|version = \"${PROWLER_VERSION}\"|version = \"${BUMP_VERSION_TO}\"|" pyproject.toml
-            cat pyproject.toml
 
             echo "Bumping version in prowler/config/config.py ..."
             sed -i "s|prowler_version = \"${PROWLER_VERSION}\"|prowler_version = \"${BUMP_VERSION_TO}\"|" prowler/config/config.py
-            cat prowler/config/config.py
 
             echo "Bumping version in .env ..."
             sed -i "s|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${PROWLER_VERSION}|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${BUMP_VERSION_TO}|" .env
-            cat .env
 
             git --no-pager diff
   
