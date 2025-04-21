@@ -56,6 +56,9 @@ jobs:
     
       - name: Bump versions in files
         run: |
+            echo "Using PROWLER_VERSION=$PROWLER_VERSION"
+            echo "Using BUMP_VERSION_TO=$BUMP_VERSION_TO"
+
             set -e
 
             echo "Bumping version in pyproject.toml ..."
@@ -66,7 +69,7 @@ jobs:
             sed -i "s|prowler_version = \"${PROWLER_VERSION}\"|prowler_version = \"${BUMP_VERSION_TO}\"|" prowler/config/config.py
             cat prowler/config/config.py
 
-            echo "Bumping version in .env ..."xw
+            echo "Bumping version in .env ..."
             sed -i "s|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${PROWLER_VERSION}|NEXT_PUBLIC_PROWLER_RELEASE_VERSION=v${BUMP_VERSION_TO}|" .env
             cat .env
 
