@@ -30,6 +30,6 @@ jobs:
             "TEST_COMMIT_SHORT_SHA": "${{ env.SHORT_SHA }}",
             "TEST_PR_TITLE": "${{ github.event.pull_request.title }}",
             "TEST_PR_LABELS": ${{ toJson(github.event.pull_request.labels.*.name) }},
-            "TEST_PR_BODY": ${{ toJson(github.event.pull_request.body) }}
-            "TEST_PR_URL": ${{ github.event.pull_request.html_url }}
+            "TEST_PR_BODY": ${{ toJson(github.event.pull_request.body) }},
+            "TEST_PR_URL":${{ toJson(github.event.pull_request.html_url) }}
           }'
