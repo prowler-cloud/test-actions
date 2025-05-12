@@ -7,7 +7,7 @@ on:
 
 env:
   PROWLER_VERSION: ${{ github.event.release.tag_name }}
-  BASE_BRANCH: master
+  BASE_BRANCH: main
 
 jobs:
   bump-version:
