@@ -1,0 +1,46 @@
+name: Create Backport Label
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  create_label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create backport label
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          OWNER_REPO: ${{ github.repository }}
+        run: |
+          LABEL_NAME="backport-to-v${RELEASE_TAG}"
+          echo "Creating label: ${LABEL_NAME} for repository ${OWNER_REPO}"
+          
+          # Check if the label already exists
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${OWNER_REPO}/labels/${LABEL_NAME}")
+          if [ "${STATUS_CODE}" -eq 200 ]; then
+            echo "Label '${LABEL_NAME}' already exists."
+          elif [ "${STATUS_CODE}" -eq 404 ]; then
+            echo "Label '${LABEL_NAME}' does not exist. Creating it..."
+            CREATE_STATUS_CODE=$(curl -s -o /tmp/curl_create_response.json -w "%{http_code}" -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            --data "{\\"name\\":\\"${LABEL_NAME}\\",\\"description\\":\\"Backport PR to the v${RELEASE_TAG} branch\\",\\"color\\":\\"B60205\\"}" \
+            "https://api.github.com/repos/${OWNER_REPO}/labels")
+
+            CREATE_RESPONSE_BODY=$(cat /tmp/curl_create_response.json)
+
+            if [ "$CREATE_STATUS_CODE" -eq 201 ]; then
+              echo "Label '${LABEL_NAME}' created successfully."
+            else
+              echo "Error creating label '${LABEL_NAME}'. Status: $CREATE_STATUS_CODE"
+              echo "Response: $CREATE_RESPONSE_BODY"
+              exit 1
+            fi
+          else
+            echo "Error checking label. HTTP Status: ${STATUS_CODE}"
+            exit 1
+          fi 
