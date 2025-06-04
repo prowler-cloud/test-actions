@@ -33,9 +33,7 @@ jobs:
   third-job:
     runs-on: ubuntu-latest
     needs: second-job
-    if: >
-      (github.event_name != 'workflow_dispatch') ||
-      (github.event_name == 'workflow_dispatch' && needs.second-job.result == 'success')
+    if: github.event_name != 'workflow_dispatch' || needs.second-job.result == 'success'
     permissions:
       id-token: write
       contents: read
