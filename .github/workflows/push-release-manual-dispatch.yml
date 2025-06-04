@@ -33,7 +33,7 @@ jobs:
   third-job:
     runs-on: ubuntu-latest
     needs: second-job
-    if: needs.second-job.outputs.result == 'success'
+    if: needs.second-job.result == 'success'
     permissions:
       id-token: write
       contents: read
