@@ -51,8 +51,9 @@ jobs:
           body-identifier: changelog-check
           body: |
             ${{ steps.check_folders.outputs.missing_changelogs != '' && format(
-            '⚠️ **Changes detected in the following folders without a corresponding update to the `CHANGELOG.md`:**
-      
-            {0}
-            
-            Please add an entry to the corresponding `CHANGELOG.md` file to maintain a clear history of changes.', steps.check_folders.outputs.missing_changelogs) || '✅ All necessary CHANGELOG.md files have been updated. Great job! 🎉' }}
+              '⚠️ **Changes detected in the following folders without a corresponding update to the `CHANGELOG.md`:**
+        
+              {0}
+              
+              Please add an entry to the corresponding `CHANGELOG.md` file to maintain a clear history of changes.', steps.check_folders.outputs.missing_changelogs
+            ) || '✅ All necessary CHANGELOG.md files have been updated. Great job! 🎉' }}
