@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,8 +45,9 @@ jobs:
           echo -e "${missing_changelogs}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Delete existing changelog comments
-        uses: peter-evans/delete-comment@v4
+      - name: Find existing changelog comment
+        id: find_comment
+        uses: peter-evans/find-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
@@ -56,6 +58,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
           body: |
             <!-- changelog-check -->
             ⚠️ **Changes detected in the following folders without a corresponding update to the `CHANGELOG.md`:**
@@ -69,6 +72,13 @@ jobs:
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find_comment.outputs.comment-id }}
           body: |
             <!-- changelog-check -->
             ✅ All necessary `CHANGELOG.md` files have been updated. Great job! 🎉
+
+      - name: Fail if changelog is missing
+        if: steps.check_folders.outputs.missing_changelogs != ''
+        run: |
+          echo "ERROR: Missing changelog updates in some folders."
+          exit 1
