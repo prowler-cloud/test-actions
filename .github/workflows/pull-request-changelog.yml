@@ -3,93 +3,52 @@ name: Check Changelog
 on:
   pull_request:
     types: [opened]
-
-jobs:
-  check-api-changelog:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     paths:
       - 'api/**'
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Check for API changelog update
-      id: api-check
-      run: |
-        git fetch origin ${{ github.base_ref }}
-        git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
-        if grep -q "^api/" changed_files.txt; then
-          if ! grep -q "^api/CHANGELOG.md$" changed_files.txt; then
-            echo "API changelog missing"
-            echo "changelog_missing=true" >> $GITHUB_OUTPUT
-          fi
-        fi
-    - name: Comment on PR
-      if: steps.api-check.outputs.changelog_missing == 'true'
-      uses: peter-evans/create-or-update-comment@v4
-      with:
-        issue-number: ${{ github.event.pull_request.number }}
-        body: |
-          ⚠️ **Changes detected in the `api/` folder without a corresponding update to `api/CHANGELOG.md`.**
-          Please add an entry to the `CHANGELOG.md` file to document your changes.
-
-  check-ui-changelog:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    paths:
       - 'ui/**'
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Check for UI changelog update
-      id: ui-check
-      run: |
-        git fetch origin ${{ github.base_ref }}
-        git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
-        if grep -q "^ui/" changed_files.txt; then
-          if ! grep -q "^ui/CHANGELOG.md$" changed_files.txt; then
-            echo "UI changelog missing"
-            echo "changelog_missing=true" >> $GITHUB_OUTPUT
-          fi
-        fi
-    - name: Comment on PR
-      if: steps.ui-check.outputs.changelog_missing == 'true'
-      uses: peter-evans/create-or-update-comment@v4
-      with:
-        issue-number: ${{ github.event.pull_request.number }}
-        body: |
-          ⚠️ **Changes detected in the `ui/` folder without a corresponding update to `ui/CHANGELOG.md`.**
-          
-          Please add an entry to the `CHANGELOG.md` file to document your changes.
+      - 'prowler/**'
 
-  check-sdk-changelog:
+jobs:
+  check-changelog:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-    paths:
-      - 'prowler/**'
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Check for SDK changelog update
-      id: sdk-check
-      run: |
-        git fetch origin ${{ github.base_ref }}
-        git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
-        if grep -q "^prowler/" changed_files.txt; then
-          if ! grep -q "^prowler/CHANGELOG.md$" changed_files.txt; then
-            echo "SDK changelog missing"
-            echo "changelog_missing=true" >> $GITHUB_OUTPUT
-          fi
-        fi
-    - name: Comment on PR
-      if: steps.sdk-check.outputs.changelog_missing == 'true'
-      uses: peter-evans/create-or-update-comment@v4
-      with:
-        issue-number: ${{ github.event.pull_request.number }}
-        body: |
-          ⚠️ **Changes detected in the `prowler/` folder without a corresponding update to `prowler/CHANGELOG.md`.**
-          
-          Please add an entry to the `CHANGELOG.md` file to document your changes.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Get list of changed files
+        id: changed_files
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
+          cat changed_files.txt
+
+      - name: Check for folder changes and changelog presence
+        id: check_folders
+        run: |
+          missing_changelogs=""
+
+          for folder in api ui prowler; do
+            if grep -q "^${folder}/" changed_files.txt; then
+              echo "Detected changes in ${folder}/"
+              if ! grep -q "^${folder}/CHANGELOG.md$" changed_files.txt; then
+                echo "No changelog update found for ${folder}/"
+                missing_changelogs="${missing_changelogs}${folder} "
+              fi
+            fi
+          done
+
+          echo "missing_changelogs=${missing_changelogs}" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR if changelog is missing
+        if: steps.check_folders.outputs.missing_changelogs != ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ⚠️ **Changes detected in the following folders that have not been updated in your CHANGELOG.md**:
+            ${{ steps.check_folders.outputs.missing_changelogs }}
+
+            Please add an entry to the corresponding `CHANGELOG.md` to maintain a clear history of changes.
