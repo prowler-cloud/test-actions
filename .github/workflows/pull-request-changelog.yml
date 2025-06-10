@@ -14,7 +14,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2with:
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -29,7 +29,7 @@ jobs:
         id: check_folders
         run: |
           missing_changelogs=""
-      
+
           for folder in api ui prowler; do
             if grep -q "^${folder}/" changed_files.txt; then
               echo "Detected changes in ${folder}/"
@@ -39,30 +39,36 @@ jobs:
               fi
             fi
           done
-      
+
           echo "missing_changelogs<<EOF" >> $GITHUB_OUTPUT
           echo -e "${missing_changelogs}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Find existing comment
-        id: find_comment
-        uses: peter-evans/find-comment@v3
+      - name: Delete existing changelog comments
+        uses: peter-evans/delete-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
           body-includes: '<!-- changelog-check -->'
 
-      - name: Comment on PR
+      - name: Comment on PR if changelog is missing
+        if: steps.check_folders.outputs.missing_changelogs != ''
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          comment-id: ${{ steps.find_comment.outputs.comment-id }}
           body: |
             <!-- changelog-check -->
-            ${{ steps.check_folders.outputs.missing_changelogs != '' && format(
-              '⚠️ **Changes detected in the following folders without a corresponding update to the `CHANGELOG.md`:**
+            ⚠️ **Changes detected in the following folders without a corresponding update to the `CHANGELOG.md`:**
 
-              {0}
-              
-              Please add an entry to the corresponding `CHANGELOG.md` file to maintain a clear history of changes.', steps.check_folders.outputs.missing_changelogs
-            ) || '✅ All necessary CHANGELOG.md files have been updated. Great job! 🎉' }}
+            ${{ steps.check_folders.outputs.missing_changelogs }}
+
+            Please add an entry to the corresponding `CHANGELOG.md` file to maintain a clear history of changes.
+
+      - name: Comment on PR if all changelogs are present
+        if: steps.check_folders.outputs.missing_changelogs == ''
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            <!-- changelog-check -->
+            ✅ All necessary `CHANGELOG.md` files have been updated. Great job! 🎉
