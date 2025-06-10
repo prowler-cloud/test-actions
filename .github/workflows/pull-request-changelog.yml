@@ -50,7 +50,7 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
-          body-includes: '⚠️ **Changes detected'  # You can also use part of your success message here
+          body-includes: '<!-- changelog-check -->'
 
       - name: Comment on PR
         uses: peter-evans/create-or-update-comment@v4
@@ -58,6 +58,7 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.find_comment.outputs.comment-id }}
           body: |
+            <!-- changelog-check -->
             ${{ steps.check_folders.outputs.missing_changelogs != '' && format(
               '⚠️ **Changes detected in the following folders without a corresponding update to the `CHANGELOG.md`:**
 
