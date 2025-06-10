@@ -29,18 +29,20 @@ jobs:
         id: check_folders
         run: |
           missing_changelogs=""
-
+      
           for folder in api ui prowler; do
             if grep -q "^${folder}/" changed_files.txt; then
               echo "Detected changes in ${folder}/"
               if ! grep -q "^${folder}/CHANGELOG.md$" changed_files.txt; then
                 echo "No changelog update found for ${folder}/"
-                missing_changelogs="${missing_changelogs}${folder} "
+                missing_changelogs="${missing_changelogs}- \`${folder}\`\n"
               fi
             fi
           done
-
-          echo "missing_changelogs=${missing_changelogs}" >> $GITHUB_OUTPUT
+      
+          echo "missing_changelogs<<EOF" >> $GITHUB_OUTPUT
+          echo -e "${missing_changelogs}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Comment on PR if changelog is missing
         if: steps.check_folders.outputs.missing_changelogs != ''
@@ -48,7 +50,8 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ⚠️ **Changes detected in the following folders that have not been updated in your CHANGELOG.md**:
+            ⚠️ **Changes detected in the following folders without a corresponding update to the `CHANGELOG.md`**:
+          
             ${{ steps.check_folders.outputs.missing_changelogs }}
-
-            Please add an entry to the corresponding `CHANGELOG.md` to maintain a clear history of changes.
+          
+            Please add an entry to the corresponding `CHANGELOG.md` file to maintain a clear history of changes.
