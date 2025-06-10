@@ -2,7 +2,7 @@ name: Check Changelog
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize, reopened]
     paths:
       - 'api/**'
       - 'ui/**'
