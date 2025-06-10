@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+    env:
+      MONITORED_FOLDERS: "api ui prowler"
 
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +33,7 @@ jobs:
         run: |
           missing_changelogs=""
 
-          for folder in api ui prowler; do
+          for folder in $MONITORED_FOLDERS; do
             if grep -q "^${folder}/" changed_files.txt; then
               echo "Detected changes in ${folder}/"
               if ! grep -q "^${folder}/CHANGELOG.md$" changed_files.txt; then
