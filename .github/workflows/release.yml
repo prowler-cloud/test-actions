@@ -1,6 +1,6 @@
-name: Prowler Release
+name: Prowler Release Preparation
 
-run-name: Prowler Release ${{ inputs.prowler_version }}
+run-name: Prowler Release Preparation for ${{ inputs.prowler_version }}
 
 on:
   workflow_dispatch:
