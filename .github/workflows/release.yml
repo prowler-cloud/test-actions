@@ -45,9 +45,14 @@ jobs:
           API_VERSION="1.${MINOR_VERSION}.${PATCH_VERSION}"
           echo "API_VERSION=${API_VERSION}" >> "${GITHUB_ENV}"
           
+          # Calculate UI version (1.X.X format) - same as API for now
+          UI_VERSION="1.${MINOR_VERSION}.${PATCH_VERSION}"
+          echo "UI_VERSION=${UI_VERSION}" >> "${GITHUB_ENV}"
+          
           echo "Prowler version: $PROWLER_VERSION"
           echo "Branch name: $BRANCH_NAME"
           echo "API version: $API_VERSION"
+          echo "UI version: $UI_VERSION"
           echo "Is minor release: $([ $PATCH_VERSION -eq 0 ] && echo 'true' || echo 'false')"
         else
           echo "Invalid version syntax: '$PROWLER_VERSION' (must be N.N.N)" >&2
@@ -155,7 +160,7 @@ jobs:
         echo "Extracting changelog entries..."
         extract_changelog "prowler/CHANGELOG.md" "$PROWLER_VERSION" "prowler_changelog.md"
         extract_changelog "api/CHANGELOG.md" "$API_VERSION" "api_changelog.md"
-        extract_changelog "ui/CHANGELOG.md" "$PROWLER_VERSION" "ui_changelog.md"
+        extract_changelog "ui/CHANGELOG.md" "$UI_VERSION" "ui_changelog.md"
         
         # Combine changelogs in order: UI, API, SDK
         > combined_changelog.md
