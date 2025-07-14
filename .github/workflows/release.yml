@@ -152,6 +152,9 @@ jobs:
             found && !/^## \[v?'"$version"'\]/ { print }
           ' "$file" > "$output_file"
           
+          # Remove --- separators
+          sed -i '/^---$/d' "$output_file"
+          
           # Remove trailing empty lines
           sed -i '/^$/d' "$output_file"
         }
