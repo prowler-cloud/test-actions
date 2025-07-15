@@ -15,7 +15,7 @@ env:
 
 jobs:
   prepare-release:
-    if: github.repository == 'prowler-cloud/prowler'
+    if: github.repository == 'prowler-cloud/test-actions'
     runs-on: ubuntu-latest
     permissions:
       contents: write
