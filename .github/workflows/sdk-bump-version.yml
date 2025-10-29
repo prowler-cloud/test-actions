@@ -11,7 +11,7 @@ concurrency:
 
 env:
   PROWLER_VERSION: ${{ github.event.release.tag_name }}
-  BASE_BRANCH: master
+  BASE_BRANCH: main
 
 jobs:
   detect-release-type:
@@ -80,7 +80,7 @@ jobs:
           echo "Current version: $PROWLER_VERSION"
           echo "Next minor version: $NEXT_MINOR_VERSION"
 
-      - name: Bump versions in files for master
+      - name: Bump versions in files for main
         run: |
           set -e
 
@@ -91,12 +91,12 @@ jobs:
           echo "Files modified:"
           git --no-pager diff
 
-      - name: Create PR for next minor version to master
+      - name: Create PR for next minor version to main
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         with:
           author: prowler-bot <179230569+prowler-bot@users.noreply.github.com>
           token: ${{ secrets.PROWLER_BOT_ACCESS_TOKEN }}
-          base: master
+          base: main
           commit-message: 'chore(release): Bump version to v${{ env.NEXT_MINOR_VERSION }}'
           branch: version-bump-to-v${{ env.NEXT_MINOR_VERSION }}
           title: 'chore(release): Bump version to v${{ env.NEXT_MINOR_VERSION }}'
